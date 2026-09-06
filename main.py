@@ -102,7 +102,7 @@ def rotation_error_degrees(analytical_rotation, pybullet_quaternion):
     ).reshape(3, 3)
     relative_rotation = analytical_rotation.T @ pybullet_rotation
     cosine_angle = (np.trace(relative_rotation) - 1.0) / 2.0
-    return np.rad2deg(np.arccos(np.clip(cosine_angle, -1.0, 1.0)))
+    return (np.arccos(np.clip(cosine_angle, -1.0, 1.0)))
 
 
 # =========================================================================
