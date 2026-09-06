@@ -95,6 +95,31 @@ def get_actuator_indices(robot_id, num_joints):
     ]
 
 
+def apply_robot_visuals(robot_id, num_joints):
+    """Give the loaded Gen3 a varied metal, polymer, and actuator finish."""
+    link_colors = {
+        -1: ([0.06, 0.07, 0.08, 1.0], [0.35, 0.38, 0.42, 1.0]),
+        0: ([0.05, 0.30, 0.78, 1.0], [0.18, 0.35, 0.65, 1.0]),
+        1: ([0.025, 0.03, 0.035, 1.0], [0.22, 0.24, 0.27, 1.0]),
+        2: ([0.82, 0.08, 0.08, 1.0], [0.62, 0.12, 0.12, 1.0]),
+        3: ([0.025, 0.03, 0.035, 1.0], [0.22, 0.24, 0.27, 1.0]),
+        4: ([0.95, 0.52, 0.05, 1.0], [0.72, 0.40, 0.08, 1.0]),
+        5: ([0.025, 0.03, 0.035, 1.0], [0.22, 0.24, 0.27, 1.0]),
+        6: ([0.02, 0.56, 0.52, 1.0], [0.12, 0.40, 0.40, 1.0]),
+    }
+
+    for link_index in range(-1, num_joints):
+        rgba_color, specular_color = link_colors.get(
+            link_index, ([0.5, 0.55, 0.58, 1.0], [0.45, 0.47, 0.49, 1.0])
+        )
+        p.changeVisualShape(
+            robot_id,
+            linkIndex=link_index,
+            rgbaColor=rgba_color,
+            specularColor=specular_color,
+        )
+
+
 def rotation_error_degrees(analytical_rotation, pybullet_quaternion):
     """Return the angular difference between two rotation matrices."""
     pybullet_rotation = np.array(
@@ -163,7 +188,7 @@ def run_ik_straight_line(robot_id, num_joints):
         p.resetJointState(robot_id, joint_index, angle)
     p.stepSimulation()
 
-    box_half_extents = [0.03, 0.03, 0.03]
+    box_half_extents = [0.04, 0.04, 0.04]
     start_marker_shape = p.createVisualShape(
         shapeType=p.GEOM_BOX,
         halfExtents=box_half_extents,
@@ -241,6 +266,7 @@ def main():
         p.loadURDF("plane.urdf")
         robot_id = p.loadURDF(str(prepare_urdf()), useFixedBase=True)
         num_joints = p.getNumJoints(robot_id)
+        apply_robot_visuals(robot_id, num_joints)
 
         while True:
             print("\n--- AR523 Assignment 1 ---")
