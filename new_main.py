@@ -1,72 +1,52 @@
-#This is the main file 
-#Kinova Gen 3 (7DOF)
+"""Forward and inverse kinematics checks for the Kinova Gen3 arm."""
 
-import numpy as n
-import pybullet as bullet
-import pybullet_data
-import sys 
-import time 
-from pathlib import Path
 import json
+import sys
+import time
+from pathlib import Path
+
+import numpy as np
+import pybullet as p
+import pybullet_data
 
 from forward_kinematics import Check_params
-from prepare_gen3_urdf import prepare_urdf
 
 
 END_EFFECTOR = "EndEffector_Link"
-# reading joint angles from the json file
- 
 JSON_FILE = Path(__file__).with_name("dh_parameters_7dof.json")
-try:
-    with JSON_FILE.open("r", encoding="utf-8") as f:
-        data = json.load(f)
-except (OSError, json.JSONDecodeError) as error:
-    print(f"Could not read the JSON file: {error}")
-JOINT_ANGLE_DEGREE = n.array((data["joint_angle_offsets"]), dtype=float)
-JOINT_ANGLE_RADIAN = n.deg2rad(JOINT_ANGLE_DEGREE)
-
-#print(JOINT_ANGLE_RADIAN)
-
-
-POINT_1 = n.array([-0.4498738647, 0.1223887801, 1.0277091265])
-POINT_2 = n.array([0.5160262585, 0.2863413095, 0.8865555525])
+URDF_FILE = Path(__file__).with_name("GEN3_URDF_V12_pybullet.urdf")
+POINT_1 = np.array([-0.4498738647, 0.1223887801, 1.0277091265])
+POINT_2 = np.array([0.5160262585, 0.2863413095, 0.8865555525])
 RUN_GUI = "--direct" not in sys.argv
 
 
-
-# the DH transformation matrix 
-
 def dh_transform(a, alpha, d, theta):
-
-    return n.array([
-        [n.cos(theta), -n.sin(theta) * n.cos(alpha),
-         n.sin(theta) * n.sin(alpha), a * n.cos(theta)],
-        [n.sin(theta), n.cos(theta) * n.cos(alpha),
-         -n.cos(theta) * n.sin(alpha), a * n.sin(theta)],
-        [0.0, n.sin(alpha), n.cos(alpha), d],
+    return np.array([
+        [np.cos(theta), -np.sin(theta) * np.cos(alpha),
+         np.sin(theta) * np.sin(alpha), a * np.cos(theta)],
+        [np.sin(theta), np.cos(theta) * np.cos(alpha),
+         -np.cos(theta) * np.sin(alpha), a * np.sin(theta)],
+        [0.0, np.sin(alpha), np.cos(alpha), d],
         [0.0, 0.0, 0.0, 1.0],
     ])
 
 
-#loading the DH data from JSON
-
-def dh_data():
+def read_dh_data():
     with JSON_FILE.open("r", encoding="utf-8") as file:
         data = json.load(file)
     if data.get("num_links") != 7 or len(data.get("dh_parameters", [])) != 7:
         raise ValueError("The Gen3 JSON file must contain seven D-H rows.")
     return data
 
-def urdf_pose(joint_angle_rad):
-    ## DH pose  == URDF Pose
-    data = dh_data()
-    dh_pose = n.eye(4)
-    for row, theta in zip(data["dh_parameters"], joint_angle_rad):
+def get_urdf_pose(joint_angles):
+    data = read_dh_data()
+    dh_pose = np.eye(4)
+    for row, theta in zip(data["dh_parameters"], joint_angles):
         dh_pose = dh_pose @ dh_transform(
             row["a"], row["alpha"], row["d"], theta
         )
-    base_to_dh_base = n.array(data["base_to_dh_base_transform"])
-    dh_end_to_urdf_end = n.array(
+    base_to_dh_base = np.array(data["base_to_dh_base_transform"])
+    dh_end_to_urdf_end = np.array(
         data["dh_end_to_urdf_end_effector_transform"]
     )
     return dh_pose, base_to_dh_base @ dh_pose @ dh_end_to_urdf_end
@@ -74,94 +54,91 @@ def urdf_pose(joint_angle_rad):
 # Forward Kinematics and Inverse Kinematics using PYBullet
 
 
-def Link_indexing(robot_id,link_name):
-    for joint_idx in range(bullet.getNumJoints(robot_id)):
-        name = bullet.getJointInfo(robot_id,joint_idx)[12].decode("utf-8")
-        #print("***name***", name)
+def get_link_index(robot_id, link_name):
+    for joint_idx in range(p.getNumJoints(robot_id)):
+        name = p.getJointInfo(robot_id, joint_idx)[12].decode("utf-8")
         if name == link_name:
             return joint_idx
-    raise ValueError(f"Link{link_name} was not found")
+    raise ValueError(f"Link {link_name!r} was not found")
 
 
-def joint_index(robot_id,num_joint):
+def get_joint_indices(robot_id, num_joints):
     return[
-        i for i in range(num_joint)
-        if bullet.getJointInfo(robot_id,i)[2] == bullet.JOINT_REVOLUTE
+        i for i in range(num_joints)
+        if p.getJointInfo(robot_id, i)[2] == p.JOINT_REVOLUTE
     ]
 
-#for calculating the rotational error
 
-def calc_rot_error(rotation,pybullet_space):
+def rotation_error(rotation, quaternion):
+    pybullet_rotation = np.array(
+        p.getMatrixFromQuaternion(quaternion)
+    ).reshape(3, 3)
 
-    PY_rotation = n.array(
-        bullet.getMatrixFromQuaternion(pybullet_space)
-    ).reshape(3,3)
+    relative_rotation = rotation.T @ pybullet_rotation
+    cosine = (np.trace(relative_rotation) - 1.0) / 2.0
+    return np.arccos(np.clip(cosine, -1.0, 1.0))
 
-    relative_rotation = rotation.T@PY_rotation
-    cos = (n.trace(relative_rotation)-1.0)/2.0
-    return (n.arccos(n.clip(cos,-1.0,1.0)))
 
-# TO CHECK THE FORWARD KINEMATICS IN THE PROGRAM
-def run_forward(robot_id,num_joint):
+def run_forward(robot_id, num_joints):
+    joint_angles = np.deg2rad(read_dh_data()["joint_angle_offsets"])
 
-    print("THE NUMBER OF JOINTS",num_joint)
+    print("THE NUMBER OF JOINTS", num_joints)
 
-    for i in range(num_joint):
-        info = bullet.getJointInfo(robot_id, i)
+    joint_indices = get_joint_indices(robot_id, num_joints)
+    for joint, angle in zip(joint_indices, joint_angles):
+        p.resetJointState(robot_id, joint, angle)
 
-    joint_idx = joint_index(robot_id,num_joint)
-    for joint,angle in zip(joint_idx,JOINT_ANGLE_RADIAN):
-        bullet.resetJointState(robot_id,joint,angle)
+    p.stepSimulation()
 
-    bullet.stepSimulation()
+    for joint, angle in zip(joint_indices, joint_angles):
+        p.resetJointState(robot_id, joint, angle)
 
-    for joint,angle in zip(joint_idx,JOINT_ANGLE_RADIAN):
-        bullet.resetJointState(robot_id,joint,angle)
-
-    end_effector_idx = Link_indexing(robot_id,END_EFFECTOR)
-    link_state = bullet.getLinkState(
-        robot_id,end_effector_idx,computeForwardKinematics = True
+    end_effector_idx = get_link_index(robot_id, END_EFFECTOR)
+    link_state = p.getLinkState(
+        robot_id, end_effector_idx, computeForwardKinematics=True
     )
 
-    pos = n.array(link_state[4])
+    pos = np.array(link_state[4])
     orientation = link_state[5]
     print("\nEnd-effector position (X, Y, Z):", pos)
     print("End-effector orientation:", orientation)
 
-    dh_pose, urdf_POSE = urdf_pose(JOINT_ANGLE_RADIAN)
-    position_error = n.linalg.norm(pos - urdf_POSE[:3, 3])
-    orientation_error = calc_rot_error(
-        urdf_POSE[:3, :3], orientation
+    dh_pose, urdf_pose = get_urdf_pose(joint_angles)
+    position_error = np.linalg.norm(pos - urdf_pose[:3, 3])
+    orientation_error = rotation_error(
+        urdf_pose[:3, :3], orientation
         )
 
-def run_inverse(robot_id,num_joint):
 
-    end_effector_idx = Link_indexing(robot_id,END_EFFECTOR)
-    joint_idx = joint_index(robot_id,num_joint)
+def run_inverse(robot_id, num_joints):
+
+    end_effector_idx = get_link_index(robot_id, END_EFFECTOR)
+    joint_idx = get_joint_indices(robot_id, num_joints)
     point_1 = POINT_1.copy()
     point_2 = POINT_2.copy()
+    joint_angles = np.deg2rad(read_dh_data()["joint_angle_offsets"])
 
-    for joint, angle in zip(joint_idx,JOINT_ANGLE_RADIAN):
-        bullet.resetJointState(robot_id,joint,angle)
-    bullet.stepSimulation()
+    for joint, angle in zip(joint_idx, joint_angles):
+        p.resetJointState(robot_id, joint, angle)
+    p.stepSimulation()
 
     box_dim = [0.04, 0.04, 0.04]
-    start_marker_shape = bullet.createVisualShape(
-            shapeType=bullet.GEOM_BOX,
+    start_marker_shape = p.createVisualShape(
+            shapeType=p.GEOM_BOX,
             halfExtents=box_dim,
             rgbaColor=[0.1, 0.9, 0.1, 1.0],
         )
-    start_marker_id = bullet.createMultiBody(
+    start_marker_id = p.createMultiBody(
             baseMass=0,
             baseVisualShapeIndex=start_marker_shape,
             basePosition=point_1,
         )
-    end_marker_shape = bullet.createVisualShape(
-            shapeType=bullet.GEOM_BOX,
+    end_marker_shape = p.createVisualShape(
+            shapeType=p.GEOM_BOX,
             halfExtents=box_dim,
             rgbaColor=[0.95, 0.1, 0.1, 1.0],
         )
-    end_marker_id = bullet.createMultiBody(
+    end_marker_id = p.createMultiBody(
             baseMass=0,
             baseVisualShapeIndex=end_marker_shape,
             basePosition=point_2,
@@ -173,57 +150,61 @@ def run_inverse(robot_id,num_joint):
             point_1 + (point_2 - point_1) * (t / ( framing_speed - 1))
             for t in range(framing_speed)
         ]
-    bullet.setRealTimeSimulation(0)
+    p.setRealTimeSimulation(0)
 
     for frame in frames:
-        joint_angles = bullet.calculateInverseKinematics(
+        ik_angles = p.calculateInverseKinematics(
             robot_id,
             end_effector_idx,
             targetPosition = frame.tolist(),
             maxNumIterations=1000,
             residualThreshold =1e-10,
         )
-        for joint, angle in zip(joint_idx, joint_angles):
-            bullet.setJointMotorControl2(
+        for joint, angle in zip(joint_idx, ik_angles):
+            p.setJointMotorControl2(
                 robot_id,
                 joint,
-                controlMode=bullet.POSITION_CONTROL,
+                controlMode=p.POSITION_CONTROL,
                 targetPosition=angle,
                 force=500,
                 positionGain=0.5,
             )
         for i in range(30):
-            bullet.stepSimulation()
+            p.stepSimulation()
             if RUN_GUI:
                 time.sleep(0.01)
 
     for i in range(120):
-        bullet.stepSimulation()
+        p.stepSimulation()
         if RUN_GUI:
             time.sleep(0.01)
     
-        link_state = bullet.getLinkState(
+    link_state = p.getLinkState(
             robot_id, end_effector_idx, computeForwardKinematics=True
         )
-        end_position = n.array(link_state[4])
-        error = n.linalg.norm(point_2 - end_position)
-        print("\nTarget end point was: ", point_2)
-        print("Achieved end position: ", end_position)
-        print("Final position error: ", f"{error:.6e}")
+    end_position = np.array(link_state[4])
+    error = np.linalg.norm(point_2 - end_position)
+    print("\nTarget end point was: ", point_2)
+    print("Achieved end position: ", end_position)
+    print("Final position error: ", f"{error:.6e}")
 
 
 # The run part of the program (connecting and loading the robot )
 # using the template code
 
 def main():
-    client = bullet.connect(bullet.GUI if RUN_GUI else bullet.DIRECT)
+    client = p.connect(p.GUI if RUN_GUI else p.DIRECT)
     try:
-        bullet.setAdditionalSearchPath(pybullet_data.getDataPath())
-        bullet.setGravity(0,0,-10)
-        bullet.loadURDF("plane.urdf")
+        p.setAdditionalSearchPath(pybullet_data.getDataPath())
+        p.setGravity(0, 0, -10)
+        p.loadURDF("plane.urdf")
 
-        robot_id = bullet.loadURDF(str(prepare_urdf()),useFixedBase =True)
-        num_joint = bullet.getNumJoints(robot_id)
+        if not URDF_FILE.is_file():
+            raise FileNotFoundError(
+                f"Prepared robot file was not found: {URDF_FILE.name}"
+            )
+        robot_id = p.loadURDF(str(URDF_FILE), useFixedBase=True)
+        num_joints = p.getNumJoints(robot_id)
 
         loop = True
 
@@ -239,9 +220,9 @@ def main():
             if ans == "1":
                 Check_params()
             elif ans == "2":
-                run_forward(robot_id, num_joint)
+                run_forward(robot_id, num_joints)
             elif ans == "3":
-                run_inverse(robot_id, num_joint)
+                run_inverse(robot_id, num_joints)
             elif ans == "4":
                 print("The program is terminated")
                 loop = False
@@ -250,7 +231,7 @@ def main():
             else:
                 print("Invalid choice, try again.")
     finally:
-        bullet.disconnect(client)
+        p.disconnect(client)
 
 
 if __name__ == "__main__":
