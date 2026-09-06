@@ -103,11 +103,11 @@ def run_forward(robot_id, num_joints):
     print("\nEnd-effector position (X, Y, Z):", pos)
     print("End-effector orientation:", orientation)
 
-    dh_pose, urdf_pose = get_urdf_pose(joint_angles)
-    position_error = np.linalg.norm(pos - urdf_pose[:3, 3])
-    orientation_error = rotation_error(
-        urdf_pose[:3, :3], orientation
-        )
+    # dh_pose, urdf_pose = get_urdf_pose(joint_angles)
+    # position_error = np.linalg.norm(pos - urdf_pose[:3, 3])
+    # orientation_error = rotation_error(
+    #     urdf_pose[:3, :3], orientation
+    #     )
 
 
 def run_inverse(robot_id, num_joints):
@@ -236,6 +236,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-

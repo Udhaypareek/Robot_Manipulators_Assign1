@@ -1,6 +1,6 @@
 {
   "robot": "Kinova Gen3 7-DOF",
-  "source_urdf": "GEN3_URDF_V12.urdf",
+  "source_urdf": "GEN3_URDF_V12_pybullet.urdf",
   "convention": "standard D-H: Rz(theta) Tz(d) Tx(a) Rx(alpha)",
   "units": {
     "length": "metres",
