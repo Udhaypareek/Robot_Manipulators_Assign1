@@ -16,7 +16,14 @@ JSON_FILE = Path(__file__).with_name("dh_parameters_7dof.json")
 END_EFFECTOR_LINK_NAME = "EndEffector_Link"
 
 # Same manual reachable configuration
-JOINT_ANGLES_DEGREES = np.array([10.0, -20.0, 25.0, -30.0, 15.0, 20.0, -10.0])
+try:
+    with JSON_FILE.open("r", encoding="utf-8") as file:
+        joint_angle_arr = json.load(file)
+except (OSError, json.JSONDecodeError) as error:
+    print(f"Could not read the JSON file: {error}")
+    
+
+JOINT_ANGLES_DEGREES = np.array(joint_angle_arr["joint_angle_offsets"], dtype=float)
 JOINT_ANGLES_RADIANS = np.deg2rad(JOINT_ANGLES_DEGREES)
 
 # Start and target points come from two verified reachable Gen3 poses.

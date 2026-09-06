@@ -61,7 +61,7 @@ def Check_params():
     dh_params = data["dh_parameters"]
 
     # Actual joint angle
-    joint_angles = np.array(data["joint_angle_offsets"], dtype=float)
+    joint_angles = np.array(np.deg2rad(data["joint_angle_offsets"]), dtype=float)
     for i in range(num_links):
         a = dh_params[i]["a"]
         alpha = dh_params[i]["alpha"]
