@@ -9,7 +9,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/base_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/base_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -18,7 +18,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/base_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/base_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -31,7 +31,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/shoulder_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/shoulder_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -40,7 +40,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/shoulder_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/shoulder_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -60,7 +60,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/half_arm_1_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/half_arm_1_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -69,7 +69,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/half_arm_1_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/half_arm_1_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -89,7 +89,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/half_arm_2_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/half_arm_2_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -98,7 +98,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/half_arm_2_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/half_arm_2_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -118,7 +118,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/forearm_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/forearm_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -127,7 +127,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/forearm_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/forearm_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -147,7 +147,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/spherical_wrist_1_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/spherical_wrist_1_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -156,7 +156,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/spherical_wrist_1_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/spherical_wrist_1_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -176,7 +176,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/spherical_wrist_2_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/spherical_wrist_2_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -185,7 +185,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/spherical_wrist_2_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/spherical_wrist_2_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -205,7 +205,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/bracelet_no_vision_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/bracelet_no_vision_link.STL" />
       </geometry>
       <material name="">
         <color rgba="0.75294 0.75294 0.75294 1" />
@@ -214,7 +214,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="C:/Users/udhay/Documents/Mtech(R)/Robot Manipulators/Assingment/Robot_Manipulators_Assign1/kinova_gen3_meshes/bracelet_no_vision_link.STL" />
+        <mesh filename="C:/Users/shash/OneDrive/Desktop/Subjects/RM_Assign/kinova_gen3_meshes/bracelet_no_vision_link.STL" />
       </geometry>
     </collision>
   </link>
